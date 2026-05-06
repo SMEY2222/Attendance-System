@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EduAttend – School Attendance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#EEF4F0;--surface:#FFFFFF;--card:#FFFFFF;--border:#D6E4DB;
+  --text:#0E1F16;--muted:#6B8C75;--accent:#1A7A52;--accent2:#F4A228;
+  --green:#1A7A52;--red:#D63F3F;--amber:#D4860A;
+  --teal-light:#E4F2EC;--radius:14px;
+  --shadow:0 2px 16px rgba(26,122,82,.09);
+  --shadow-md:0 8px 32px rgba(26,122,82,.14);
+  --dots:url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='%231A7A52' fill-opacity='0.12'/%3E%3C/svg%3E");
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes shimmer{0%,100%{opacity:.5}50%{opacity:1}}
+
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;min-height:100vh}
+
+/* ─── Auth ─── */
+.auth-wrap{min-height:100vh;display:flex;align-items:stretch}
+
+/* Left decorative panel */
+.auth-left{
+  flex:0 0 440px;
+  background:linear-gradient(160deg,#0E5C38 0%,#1A7A52 55%,#229966 100%);
+  padding:52px 44px;display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.auth-left::before{content:'';position:absolute;inset:0;background:var(--dots);opacity:1}
+/* Large decorative rings */
+.auth-left::after{
+  content:'';position:absolute;bottom:-80px;right:-80px;
+  width:320px;height:320px;border-radius:50%;
+  border:40px solid rgba(255,255,255,.07);
+}
+.auth-left-top{position:relative;z-index:1}
+.auth-brand{display:flex;align-items:center;gap:14px;margin-bottom:52px}
+.auth-brand-icon{
+  width:52px;height:52px;background:rgba(255,255,255,.18);
+  border-radius:16px;display:grid;place-items:center;color:#fff;
+  border:1.5px solid rgba(255,255,255,.35);
+  box-shadow:0 0 0 6px rgba(255,255,255,.06);
+}
+.auth-brand h1{font-family:'Lora',serif;font-size:26px;font-weight:700;color:#fff;letter-spacing:-.02em}
+.auth-brand span{font-size:11px;color:rgba(255,255,255,.6);display:block;margin-top:-2px;letter-spacing:.08em;text-transform:uppercase}
+.auth-hero{color:#fff;position:relative;z-index:1}
+.auth-hero h2{font-family:'Lora',serif;font-size:34px;font-weight:600;line-height:1.3;margin-bottom:14px;letter-spacing:-.02em}
+.auth-hero p{font-size:14px;color:rgba(255,255,255,.7);line-height:1.75}
+/* Inner ring accent */
+.auth-ring{
+  position:absolute;bottom:60px;right:40px;
+  width:140px;height:140px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.12);z-index:0;
+}
+.auth-stats{display:flex;gap:12px;position:relative;z-index:1;margin-top:44px;flex-wrap:wrap}
+.auth-stat{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:14px;padding:16px 20px;
+  backdrop-filter:blur(4px);
+  flex:1;min-width:90px;
+}
+.auth-stat-val{font-family:'Lora',serif;font-size:24px;font-weight:700;color:#fff}
+.auth-stat-lbl{font-size:10px;color:rgba(255,255,255,.6);margin-top:3px;letter-spacing:.06em;text-transform:uppercase}
+
+/* Right form panel */
+.auth-right{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:48px 44px;background:var(--bg);
+}
+.auth-card{width:100%;max-width:400px;animation:fadeUp .5s ease both}
+.auth-card-title{
+  font-family:'Lora',serif;font-size:30px;font-weight:700;
+  margin-bottom:6px;color:var(--text);letter-spacing:-.03em;
+}
+.auth-card-sub{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6}
+
+.auth-tabs{
+  display:flex;gap:4px;background:var(--border);
+  border-radius:12px;padding:4px;margin-bottom:28px;
+}
+.auth-tab{
+  flex:1;padding:10px;border:none;border-radius:9px;cursor:pointer;
+  font-family:'Sora',sans-serif;font-size:13px;font-weight:600;
+  transition:all .22s;background:transparent;color:var(--muted);
+}
+.auth-tab.active{
+  background:var(--surface);color:var(--accent);
+  box-shadow:0 2px 10px rgba(26,122,82,.15);
+}
+
+/* Fields */
+.field{margin-bottom:18px}
+.field label{
+  display:block;font-size:11px;font-weight:700;color:var(--muted);
+  letter-spacing:.07em;text-transform:uppercase;margin-bottom:7px;
+}
+.field-wrap{position:relative}
+.field input,.field select{
+  width:100%;padding:12px 16px;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:11px;color:var(--text);
+  font-family:'Sora',sans-serif;font-size:14px;outline:none;
+  transition:border .2s,box-shadow .2s;
+}
+.field input:focus,.field select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(26,122,82,.12);
+}
+.field input::placeholder{color:#A8C4B0}
+
+/* Password toggle */
+.pwd-toggle{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--muted);
+  padding:4px;display:flex;align-items:center;
+}
+/* Strength meter */
+.strength-wrap{margin-top:9px}
+.strength-bars{display:flex;gap:5px;height:5px}
+.strength-bar{flex:1;border-radius:4px;background:var(--border);transition:background .3s,transform .3s}
+.strength-bar.weak{background:#D63F3F}
+.strength-bar.fair{background:#D4860A}
+.strength-bar.good{background:#1A7A52}
+.strength-bar.strong{background:#1A7A52}
+.strength-label{font-size:11px;color:var(--muted);margin-top:6px;font-weight:600;transition:color .3s}
+.pwd-rules{margin-top:9px;display:flex;flex-direction:column;gap:4px}
+.pwd-rule{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;transition:color .2s}
+.pwd-rule.ok{color:var(--green)}
+.pwd-rule svg{flex-shrink:0;transition:stroke .2s}
+
+/* Buttons */
+.btn-primary{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,#1A7A52,#229966);
+  color:#fff;border:none;border-radius:11px;
+  font-family:'Sora',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .22s;letter-spacing:.01em;
+  box-shadow:0 4px 16px rgba(26,122,82,.3);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,122,82,.38)}
+.btn-primary:active{transform:translateY(0);box-shadow:0 2px 8px rgba(26,122,82,.2)}
+
+/* Messages */
+.err-msg{
+  color:#b82e2e;font-size:13px;margin-bottom:14px;
+  padding:11px 14px;background:#FDF1F1;
+  border-radius:10px;border:1px solid #F3C0C0;
+  display:flex;align-items:center;gap:9px;font-weight:500;
+}
+.success-msg{
+  color:#156641;font-size:13px;margin-bottom:14px;
+  padding:11px 14px;background:#EBF7F1;
+  border-radius:10px;border:1px solid #A8DBBF;
+  display:flex;align-items:center;gap:9px;font-weight:500;
+}
+
+.auth-divider{text-align:center;font-size:12px;color:var(--muted);margin:20px 0;position:relative}
+.auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:calc(50% - 30px);height:1px;background:var(--border)}
+.auth-divider::before{left:0}
+.auth-divider::after{right:0}
+
+/* ─── App Layout ─── */
+.app-layout{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{
+  width:240px;
+  background:linear-gradient(180deg,#0D5234 0%,#1A7A52 100%);
+  display:flex;flex-direction:column;padding:26px 14px;
+  flex-shrink:0;position:relative;overflow:hidden;
+}
+.sidebar::before{content:'';position:absolute;inset:0;background:var(--dots);opacity:.6}
+/* Sidebar glow blob */
+.sidebar::after{
+  content:'';position:absolute;bottom:-60px;left:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.sidebar-logo{
+  display:flex;align-items:center;gap:11px;
+  margin-bottom:38px;padding:0 8px;position:relative;z-index:1;
+}
+.sidebar-logo-icon{
+  width:40px;height:40px;
+  background:rgba(255,255,255,.16);border-radius:12px;
+  display:grid;place-items:center;color:#fff;
+  border:1.5px solid rgba(255,255,255,.28);flex-shrink:0;
+}
+.sidebar-logo h2{font-family:'Lora',serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:-.02em}
+.sidebar-logo span{font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.07em}
+.sidebar-section-title{
+  font-size:10px;font-weight:700;color:rgba(255,255,255,.45);
+  letter-spacing:.12em;text-transform:uppercase;padding:0 10px;
+  margin-bottom:8px;position:relative;z-index:1;
+}
+.sidebar-spacer{flex:1}
+.sidebar-user{
+  display:flex;align-items:center;gap:10px;padding:12px 10px;
+  background:rgba(255,255,255,.11);border-radius:12px;margin-bottom:10px;
+  border:1px solid rgba(255,255,255,.16);position:relative;z-index:1;
+}
+.sidebar-avatar{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--accent2);display:grid;place-items:center;
+  font-size:13px;font-weight:700;color:#fff;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+.sidebar-username{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.sidebar-role{font-size:10px;color:rgba(255,255,255,.55);text-transform:capitalize;margin-top:1px}
+.sidebar-nav-btn{
+  display:flex;align-items:center;gap:10px;padding:11px 12px;
+  border-radius:11px;border:none;cursor:pointer;
+  font-family:'Sora',sans-serif;font-size:13px;font-weight:600;
+  margin-bottom:4px;background:transparent;color:rgba(255,255,255,.6);
+  width:100%;transition:all .2s;position:relative;z-index:1;
+}
+.sidebar-nav-btn.active{
+  background:rgba(255,255,255,.17);color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+}
+.sidebar-nav-btn:hover:not(.active){color:#fff;background:rgba(255,255,255,.09)}
+.sidebar-logout{
+  display:flex;align-items:center;gap:9px;width:100%;padding:10px 10px;
+  border:none;background:transparent;color:rgba(255,255,255,.45);
+  cursor:pointer;border-radius:10px;font-family:'Sora',sans-serif;
+  font-size:13px;font-weight:600;transition:all .2s;position:relative;z-index:1;
+}
+.sidebar-logout:hover{background:rgba(214,63,63,.2);color:#ffaaaa}
+
+/* ─── Main ─── */
+.main{flex:1;overflow-y:auto;background:var(--bg)}
+.main-header{
+  padding:32px 36px 0;display:flex;align-items:center;
+  justify-content:space-between;
+}
+.main-header h1{font-family:'Lora',serif;font-size:28px;font-weight:700;letter-spacing:-.03em}
+.main-header p{color:var(--muted);font-size:14px;margin-top:4px}
+.content{padding:24px 36px 56px}
+
+/* ─── School Banner ─── */
+.school-banner{
+  background:linear-gradient(125deg,#1A7A52 0%,#156641 60%,#0D5234 100%);
+  border-radius:18px;padding:22px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;overflow:hidden;position:relative;
+  box-shadow:0 4px 20px rgba(26,122,82,.22);
+}
+.school-banner::before{content:'';position:absolute;inset:0;background:var(--dots);opacity:.5}
+.school-banner::after{
+  content:'';position:absolute;right:-40px;top:-40px;
+  width:180px;height:180px;border-radius:50%;
+  border:28px solid rgba(255,255,255,.07);
+}
+.school-banner-left{position:relative;z-index:1}
+.school-banner h2{font-family:'Lora',serif;font-size:19px;font-weight:600;color:#fff;margin-bottom:3px;letter-spacing:-.02em}
+.school-banner p{font-size:13px;color:rgba(255,255,255,.7)}
+.school-banner-right{position:relative;z-index:1;display:flex;gap:20px}
+.banner-stat{text-align:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px 18px}
+.banner-stat-val{font-family:'Lora',serif;font-size:26px;font-weight:700;color:#fff;line-height:1}
+.banner-stat-lbl{font-size:10px;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.07em;margin-top:4px}
+
+/* ─── Rooms Grid ─── */
+.rooms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:20px}
+.room-card{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:18px;padding:26px;cursor:pointer;
+  transition:all .25s cubic-bezier(.34,1.2,.64,1);
+  position:relative;overflow:hidden;
+  box-shadow:var(--shadow);
+  animation:fadeUp .4s ease both;
+}
+.room-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:5px;
+  background:var(--c);border-radius:5px 5px 0 0;
+}
+/* Soft color wash in top-right corner */
+.room-card::after{
+  content:'';position:absolute;top:0;right:0;
+  width:80px;height:80px;border-radius:0 18px 0 80px;
+  background:var(--c);opacity:.07;
+  transition:opacity .25s;
+}
+.room-card:hover{
+  border-color:var(--c);
+  transform:translateY(-4px) scale(1.01);
+  box-shadow:var(--shadow-md);
+}
+.room-card:hover::after{opacity:.12}
+.room-card-icon{
+  width:50px;height:50px;border-radius:14px;
+  display:grid;place-items:center;margin-bottom:18px;
+}
+.room-card h3{font-family:'Lora',serif;font-size:20px;font-weight:700;margin-bottom:3px;letter-spacing:-.02em}
+.room-card p{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.07em}
+.room-card .student-count{margin-top:16px;font-size:13px;font-weight:700;color:var(--c)}
+
+.add-room-card{
+  background:transparent;border:2px dashed var(--border);
+  border-radius:18px;padding:24px;cursor:pointer;transition:all .22s;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:175px;gap:12px;
+  color:var(--muted);font-weight:600;font-family:'Sora',sans-serif;font-size:14px;
+}
+.add-room-card:hover{border-color:var(--accent);color:var(--accent);background:var(--teal-light)}
+
+/* ─── Modal ─── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(10,30,20,.5);
+  display:flex;align-items:center;justify-content:center;
+  z-index:999;padding:20px;backdrop-filter:blur(8px);
+}
+.modal-overlay.hidden{display:none}
+.modal{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:22px;padding:34px;width:100%;max-width:460px;
+  box-shadow:0 24px 64px rgba(26,122,82,.18);
+  animation:scaleIn .22s ease both;
+}
+.modal h2{font-family:'Lora',serif;font-size:22px;font-weight:700;margin-bottom:24px;letter-spacing:-.02em}
+.modal-actions{display:flex;gap:10px;margin-top:24px}
+.btn-secondary{
+  flex:1;padding:12px;background:var(--bg);color:var(--text);
+  border:1.5px solid var(--border);border-radius:11px;
+  font-family:'Sora',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.color-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
+.color-swatch{
+  width:36px;height:36px;border-radius:10px;cursor:pointer;
+  border:3px solid transparent;transition:all .18s;
+}
+.color-swatch.selected{border-color:var(--text);transform:scale(1.15);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+
+/* ─── Dashboard ─── */
+.db-header{
+  padding:32px 36px 0;display:flex;align-items:flex-start;
+  justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.db-back{
+  display:flex;align-items:center;gap:6px;background:none;border:none;
+  color:var(--muted);cursor:pointer;font-family:'Sora',sans-serif;
+  font-size:13px;font-weight:600;padding:0;margin-bottom:10px;
+  transition:color .2s;
+}
+.db-back:hover{color:var(--accent)}
+.db-title{font-family:'Lora',serif;font-size:28px;font-weight:700;letter-spacing:-.03em}
+.db-subtitle{color:var(--muted);font-size:13px;margin-top:3px}
+.db-date-pill{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:11px;padding:9px 15px;font-size:13px;font-weight:600;
+  display:flex;align-items:center;gap:8px;color:var(--muted);flex-shrink:0;
+}
+
+/* Stats chips */
+.stats-row{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap}
+.stat-chip{
+  flex:1;min-width:100px;background:var(--card);border:1.5px solid var(--border);
+  border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:4px;
+  box-shadow:var(--shadow);transition:transform .2s;
+}
+.stat-chip:hover{transform:translateY(-2px)}
+.stat-chip .val{font-family:'Lora',serif;font-size:32px;font-weight:700;letter-spacing:-.03em}
+.stat-chip .lbl{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+/* Progress */
+.progress-wrap{
+  margin-top:16px;background:var(--card);
+  border-radius:16px;border:1.5px solid var(--border);padding:18px 22px;
+  box-shadow:var(--shadow);
+}
+.progress-top{display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;color:var(--muted);font-weight:600}
+.progress-bar{height:10px;background:var(--teal-light);border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#1A7A52,#2DB57C);border-radius:10px;transition:width .5s cubic-bezier(.34,1.2,.64,1)}
+
+/* Student table */
+.students-table{margin-top:24px}
+.table-toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;flex-wrap:wrap;gap:10px;
+}
+.table-toolbar h3{font-family:'Lora',serif;font-size:20px;font-weight:700;letter-spacing:-.02em}
+.toolbar-actions{display:flex;gap:8px}
+.btn-sm{
+  padding:9px 15px;border-radius:10px;font-family:'Sora',sans-serif;
+  font-size:13px;font-weight:700;cursor:pointer;border:none;
+  display:inline-flex;align-items:center;gap:6px;transition:all .2s;
+}
+.btn-sm.primary{background:var(--accent);color:#fff;box-shadow:0 2px 10px rgba(26,122,82,.25)}
+.btn-sm.primary:hover{background:#156641;transform:translateY(-1px)}
+.btn-sm.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border)}
+.btn-sm.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm.success{
+  background:rgba(26,122,82,.1);color:var(--green);
+  border:1.5px solid rgba(26,122,82,.22);
+}
+.btn-sm.success:hover{background:rgba(26,122,82,.18)}
+
+/* Student rows */
+.student-row{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:14px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;margin-bottom:8px;
+  transition:all .2s;box-shadow:var(--shadow);
+}
+.student-row:hover{box-shadow:var(--shadow-md);border-color:var(--accent);transform:translateX(3px)}
+.s-avatar{
+  width:42px;height:42px;border-radius:12px;
+  display:grid;place-items:center;font-size:13px;font-weight:700;
+  color:#fff;flex-shrink:0;
+}
+.s-name{font-size:15px;font-weight:600;flex:1}
+.s-id{font-size:11px;color:var(--muted);margin-top:1px}
+
+/* Attendance buttons */
+.att-btns{display:flex;gap:6px}
+.att-btn{
+  width:38px;height:38px;border-radius:10px;border:1.5px solid;
+  display:grid;place-items:center;cursor:pointer;
+  transition:all .18s;background:transparent;
+}
+.att-btn.present{border-color:#1A7A52;color:#1A7A52}
+.att-btn.present.active{background:#1A7A52;color:#fff;box-shadow:0 2px 10px rgba(26,122,82,.35)}
+.att-btn.late{border-color:#D4860A;color:#D4860A}
+.att-btn.late.active{background:#D4860A;color:#fff;box-shadow:0 2px 10px rgba(212,134,10,.3)}
+.att-btn.absent{border-color:#D63F3F;color:#D63F3F}
+.att-btn.absent.active{background:#D63F3F;color:#fff;box-shadow:0 2px 10px rgba(214,63,63,.3)}
+.att-btn:hover{transform:scale(1.12)}
+
+/* Badges */
+.status-badge{
+  font-size:10px;font-weight:700;padding:4px 10px;
+  border-radius:20px;text-transform:uppercase;letter-spacing:.07em;
+}
+.status-badge.present{background:#DFFAEF;color:#156641;border:1px solid #A8DBBF}
+.status-badge.late{background:#FFF4E0;color:#9A5E06;border:1px solid #F0C878}
+.status-badge.absent{background:#FDEAEA;color:#A82D2D;border:1px solid #F4BBBB}
+.status-badge.none{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+
+.delete-btn{
+  width:34px;height:34px;border-radius:9px;border:1.5px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;
+  display:grid;place-items:center;transition:all .2s;
+}
+.delete-btn:hover{border-color:var(--red);color:var(--red);background:#FDF1F1}
+.empty-state{text-align:center;padding:56px 24px;color:var(--muted)}
+
+/* ─── Toast ─── */
+.toast{
+  position:fixed;bottom:28px;right:28px;
+  background:linear-gradient(135deg,#1A7A52,#229966);
+  color:#fff;padding:13px 20px;border-radius:14px;font-size:14px;font-weight:600;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 8px 28px rgba(26,122,82,.4);
+  transform:translateY(80px);opacity:0;
+  transition:all .38s cubic-bezier(.34,1.56,.64,1);
+  z-index:1000;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ─── Utility ─── */
+.view{display:none}
+.view.active{display:block}
+#app{display:none}
+#app.active{display:flex}
+
+@media(max-width:760px){
+  .auth-left{display:none}
+  .auth-right{padding:32px 24px}
+  .sidebar{width:200px}
+  .content{padding:20px 20px 48px}
+  .main-header{padding:24px 20px 0}
+  .db-header{padding:24px 20px 0}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ AUTH ══ -->
+<div id="auth-screen" class="auth-wrap">
+  <!-- Left panel -->
+  <div class="auth-left">
+    <div class="auth-left-top">
+      <div class="auth-brand">
+        <div class="auth-brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <div><h1>EduAttend</h1><span>School Attendance</span></div>
+      </div>
+      <div class="auth-hero">
+        <h2>Smart Attendance for Modern Schools</h2>
+        <p>Track classroom attendance in real-time, generate instant reports, and keep every teacher in sync — all from one simple platform.</p>
+      </div>
+      <div class="auth-stats">
+        <div class="auth-stat">
+          <div class="auth-stat-val">4</div>
+          <div class="auth-stat-lbl">Classrooms</div>
+        </div>
+        <div class="auth-stat">
+          <div class="auth-stat-val">15</div>
+          <div class="auth-stat-lbl">Students</div>
+        </div>
+        <div class="auth-stat">
+          <div class="auth-stat-val">Real‑time</div>
+          <div class="auth-stat-lbl">Sync</div>
+        </div>
+      </div>
+    </div>
+    <div style="position:relative;z-index:1;font-size:12px;color:rgba(255,255,255,.4)">© 2025 EduAttend School System</div>
+    <div class="auth-ring"></div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-title" id="auth-card-title">Welcome back</div>
+      <div class="auth-card-sub" id="auth-card-sub">Sign in with your school email to continue</div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <div id="auth-err" class="err-msg" style="display:none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="auth-err-text"></span>
+      </div>
+      <div id="auth-ok" class="success-msg" style="display:none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="auth-ok-text"></span>
+      </div>
+
+      <!-- Email field (always shown) -->
+      <div class="field">
+        <label>Email Address</label>
+        <div class="field-wrap">
+          <input id="auth-email" type="email" placeholder="teacher@school.edu" onkeydown="if(event.key==='Enter')doAuth()"/>
+        </div>
+      </div>
+
+      <!-- Password field -->
+      <div class="field">
+        <label>Password</label>
+        <div class="field-wrap">
+          <input id="auth-pass" type="password" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doAuth()" oninput="onPasswordInput(this.value)"/>
+          <button class="pwd-toggle" type="button" onclick="togglePwd()" title="Toggle password visibility">
+            <svg id="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <!-- Password strength (register only) -->
+        <div id="strength-section" style="display:none">
+          <div class="strength-wrap">
+            <div class="strength-bars">
+              <div class="strength-bar" id="sb1"></div>
+              <div class="strength-bar" id="sb2"></div>
+              <div class="strength-bar" id="sb3"></div>
+              <div class="strength-bar" id="sb4"></div>
+            </div>
+            <div class="strength-label" id="strength-label">Enter a password</div>
+          </div>
+          <div class="pwd-rules">
+            <div class="pwd-rule" id="rule-len">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+              At least 8 characters
+            </div>
+            <div class="pwd-rule" id="rule-upper">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+              One uppercase letter (A–Z)
+            </div>
+            <div class="pwd-rule" id="rule-num">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+              One number (0–9)
+            </div>
+            <div class="pwd-rule" id="rule-sym">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+              One symbol (!@#$%^&*)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role (register only) -->
+      <div class="field" id="role-field" style="display:none">
+        <label>Role</label>
+        <select id="auth-role">
+          <option value="teacher">Teacher</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" id="auth-btn" onclick="doAuth()">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app" class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      </div>
+      <div><h2>EduAttend</h2><span>Attendance</span></div>
+    </div>
+    <div class="sidebar-section-title">Navigation</div>
+    <button class="sidebar-nav-btn active" id="nav-rooms" onclick="goRooms()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M9 3v18"/><circle cx="7" cy="12" r="1" fill="currentColor"/></svg>
+      Classrooms
+    </button>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebar-av">?</div>
+      <div><div class="sidebar-username" id="sidebar-uname">—</div><div class="sidebar-role" id="sidebar-urole">—</div></div>
+    </div>
+    <button class="sidebar-logout" onclick="signOut()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <!-- ROOMS VIEW -->
+    <div id="view-rooms" class="view active">
+      <div class="main-header">
+        <div><h1>Classrooms</h1><p>Select a room to take attendance</p></div>
+        <div style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;font-weight:600">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span id="today-label"></span>
+        </div>
+      </div>
+      <div class="content">
+        <div class="school-banner">
+          <div class="school-banner-left">
+            <h2>Good morning! Ready to take attendance?</h2>
+            <p>All classrooms are listed below. Click to open and mark students.</p>
+          </div>
+          <div class="school-banner-right">
+            <div class="banner-stat">
+              <div class="banner-stat-val" id="banner-rooms">0</div>
+              <div class="banner-stat-lbl">Rooms</div>
+            </div>
+            <div class="banner-stat">
+              <div class="banner-stat-val" id="banner-students">0</div>
+              <div class="banner-stat-lbl">Students</div>
+            </div>
+          </div>
+        </div>
+        <div class="rooms-grid" id="rooms-grid"></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="view-dashboard" class="view">
+      <div class="db-header">
+        <div>
+          <button class="db-back" onclick="goRooms()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            All Rooms
+          </button>
+          <div class="db-title" id="db-title">—</div>
+          <div class="db-subtitle" id="db-subtitle">—</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div class="db-date-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="db-date"></span>
+          </div>
+          <button class="btn-sm ghost" style="color:var(--red);border-color:rgba(193,53,53,.25)" onclick="deleteActiveRoom()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Delete Room
+          </button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="stats-row" id="stats-row"></div>
+        <div class="progress-wrap">
+          <div class="progress-top"><span>Attendance Progress</span><span style="color:var(--green)" id="progress-pct">0%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="students-table">
+          <div class="table-toolbar">
+            <h3>Student List</h3>
+            <div class="toolbar-actions">
+              <button class="btn-sm success" onclick="saveStudentList()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save List
+              </button>
+              <button class="btn-sm primary" onclick="openAddStudent()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                Add Student
+              </button>
+            </div>
+          </div>
+          <div id="student-list"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══ MODAL: Add Room ══ -->
+<div id="modal-room" class="modal-overlay hidden" onclick="closeModal('modal-room')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2>Add New Classroom</h2>
+    <div class="field"><label>Room Name</label><input id="room-name" placeholder="e.g. Room 5"/></div>
+    <div class="field"><label>Grade / Label</label><input id="room-grade" placeholder="e.g. Grade 5 or Science"/></div>
+    <div class="field"><label>Color</label><div class="color-grid" id="color-grid"></div></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-room')">Cancel</button>
+      <button class="btn-primary" style="flex:1" onclick="addRoom()">Create Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Add Student ══ -->
+<div id="modal-student" class="modal-overlay hidden" onclick="closeModal('modal-student')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2>Add Student</h2>
+    <div class="field"><label>Full Name</label><input id="student-name" placeholder="e.g. Jane Smith" onkeydown="if(event.key==='Enter')addStudent()"/></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-student')">Cancel</button>
+      <button class="btn-primary" style="flex:1" onclick="addStudent()">Add Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg">Saved!</span>
+</div>
+
+<script>
+// ─── Constants ───────────────────────────────────────────────────────────────
+const COLORS = ["#2A5F9E","#E8A020","#1A7A4A","#8B3DCC","#C13535","#0E8AA6","#D4621F","#5A7A2E","#A0397A","#1A5E8A"];
+const SK = { users:"att_users2", rooms:"att_rooms2", attendance:"att_attendance2" };
+
+const DEFAULT_ROOMS = [
+  { id:"r1", name:"Room 1", grade:"Grade 1", color:"#2A5F9E", students:[
+    {id:"s1",name:"Alice Johnson",avatar:"AJ"},{id:"s2",name:"Ben Carter",avatar:"BC"},
+    {id:"s3",name:"Clara Moon",avatar:"CM"},{id:"s4",name:"David Park",avatar:"DP"}
+  ]},
+  { id:"r2", name:"Room 2", grade:"Grade 2", color:"#E8A020", students:[
+    {id:"s5",name:"Emma White",avatar:"EW"},{id:"s6",name:"Frank Lee",avatar:"FL"},{id:"s7",name:"Grace Kim",avatar:"GK"}
+  ]},
+  { id:"r3", name:"Room 3", grade:"Grade 3", color:"#1A7A4A", students:[
+    {id:"s8",name:"Henry Brown",avatar:"HB"},{id:"s9",name:"Iris Chen",avatar:"IC"},
+    {id:"s10",name:"Jack Wilson",avatar:"JW"},{id:"s11",name:"Kara Davis",avatar:"KD"},{id:"s12",name:"Liam Scott",avatar:"LS"}
+  ]},
+  { id:"r4", name:"Room 4", grade:"Grade 4", color:"#8B3DCC", students:[
+    {id:"s13",name:"Mia Turner",avatar:"MT"},{id:"s14",name:"Noah Adams",avatar:"NA"},{id:"s15",name:"Olivia Hall",avatar:"OH"}
+  ]}
+];
+
+// ─── State ───────────────────────────────────────────────────────────────────
+let session = null;
+let rooms = load(SK.rooms, DEFAULT_ROOMS);
+let attendance = load(SK.attendance, {});
+let activeRoom = null;
+let authMode = "login";
+let selectedColor = COLORS[0];
+
+// ─── Storage helpers ─────────────────────────────────────────────────────────
+function load(key, fallback){ try{ const v=localStorage.getItem(key); return v?JSON.parse(v):fallback; }catch{ return fallback; } }
+function save(key, val){ try{ localStorage.setItem(key,JSON.stringify(val)); }catch{} }
+
+// ─── Date ────────────────────────────────────────────────────────────────────
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function todayLabel(){ return new Date().toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"}); }
+
+// ─── Password Strength ───────────────────────────────────────────────────────
+function checkPassword(pwd){
+  return {
+    len: pwd.length >= 8,
+    upper: /[A-Z]/.test(pwd),
+    num: /[0-9]/.test(pwd),
+    sym: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
+  };
+}
+
+function getStrength(checks){
+  const score = Object.values(checks).filter(Boolean).length;
+  if(score === 0) return {level:0, label:'', cls:''};
+  if(score === 1) return {level:1, label:'Weak', cls:'weak'};
+  if(score === 2) return {level:2, label:'Fair', cls:'fair'};
+  if(score === 3) return {level:3, label:'Good', cls:'good'};
+  return {level:4, label:'Strong ✓', cls:'strong'};
+}
+
+function onPasswordInput(pwd){
+  if(authMode !== 'register') return;
+  const checks = checkPassword(pwd);
+  const strength = getStrength(checks);
+  const bars = ['sb1','sb2','sb3','sb4'];
+  bars.forEach((id,i)=>{
+    const el = document.getElementById(id);
+    el.className = 'strength-bar';
+    if(i < strength.level) el.classList.add(strength.cls);
+  });
+  const lbl = document.getElementById('strength-label');
+  lbl.textContent = pwd.length===0 ? 'Enter a password' : strength.label;
+  lbl.style.color = strength.cls==='weak'?'#C13535':strength.cls==='fair'?'#C97A10':strength.cls==='good'||strength.cls==='strong'?'#1A7A4A':'var(--muted)';
+  setRule('rule-len', checks.len);
+  setRule('rule-upper', checks.upper);
+  setRule('rule-num', checks.num);
+  setRule('rule-sym', checks.sym);
+}
+
+function setRule(id, ok){
+  const el = document.getElementById(id);
+  el.classList.toggle('ok', ok);
+  el.querySelector('svg').innerHTML = ok
+    ? '<polyline points="20 6 9 17 4 12"/>'
+    : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/>';
+}
+
+function togglePwd(){
+  const inp = document.getElementById('auth-pass');
+  const icon = document.getElementById('eye-icon');
+  if(inp.type==='password'){
+    inp.type='text';
+    icon.innerHTML='<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    inp.type='password';
+    icon.innerHTML='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+function switchTab(mode){
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode==='login');
+  document.getElementById('tab-register').classList.toggle('active', mode==='register');
+  document.getElementById('role-field').style.display = mode==='register'?'block':'none';
+  document.getElementById('strength-section').style.display = mode==='register'?'block':'none';
+  document.getElementById('auth-btn').textContent = mode==='login'?'Sign In':'Create Account';
+  document.getElementById('auth-card-title').textContent = mode==='login'?'Welcome back':'Create an account';
+  document.getElementById('auth-card-sub').textContent = mode==='login'?'Sign in with your school email to continue':'Register with your school email address';
+  setAuthMsg('','');
+  document.getElementById('auth-pass').value='';
+  onPasswordInput('');
+}
+
+function isValidEmail(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function setAuthMsg(err, ok){
+  const e=document.getElementById('auth-err'), o=document.getElementById('auth-ok');
+  e.style.display = err?'flex':'none'; document.getElementById('auth-err-text').textContent = err;
+  o.style.display = ok?'flex':'none'; document.getElementById('auth-ok-text').textContent = ok;
+}
+
+function doAuth(){
+  setAuthMsg('','');
+  const email = document.getElementById('auth-email').value.trim();
+  const pwd = document.getElementById('auth-pass').value;
+  const role = document.getElementById('auth-role').value;
+  const users = load(SK.users, []);
+
+  if(!email) return setAuthMsg('Please enter your email address.','');
+  if(!isValidEmail(email)) return setAuthMsg('Please enter a valid email address.','');
+  if(!pwd) return setAuthMsg('Please enter your password.','');
+
+  if(authMode === 'register'){
+    const checks = checkPassword(pwd);
+    if(!checks.len) return setAuthMsg('Password must be at least 8 characters.','');
+    if(!checks.upper) return setAuthMsg('Password must include an uppercase letter.','');
+    if(!checks.num) return setAuthMsg('Password must include a number.','');
+    if(!checks.sym) return setAuthMsg('Password must include a symbol (e.g. !@#$%).','');
+    if(users.find(x=>x.email===email)) return setAuthMsg('An account with this email already exists.','');
+    users.push({email, password:pwd, role});
+    save(SK.users, users);
+    setAuthMsg('','Account created! Please sign in.');
+    switchTab('login');
+    document.getElementById('auth-email').value = email;
+  } else {
+    const user = users.find(x=>x.email===email && x.password===pwd);
+    if(!user) return setAuthMsg('Incorrect email or password.','');
+    session = {email:user.email, role:user.role};
+    startApp();
+  }
+}
+
+function signOut(){
+  session = null;
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('auth-email').value='';
+  document.getElementById('auth-pass').value='';
+  setAuthMsg('','');
+}
+
+function startApp(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').classList.add('active');
+  const initials = session.email.split('@')[0].slice(0,2).toUpperCase();
+  document.getElementById('sidebar-av').textContent = initials;
+  document.getElementById('sidebar-uname').textContent = session.email;
+  document.getElementById('sidebar-urole').textContent = session.role;
+  document.getElementById('today-label').textContent = todayLabel();
+  document.getElementById('db-date').textContent = todayLabel();
+  buildColorGrid();
+  renderRooms();
+}
+
+// ─── Views ───────────────────────────────────────────────────────────────────
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goRooms(){
+  showView('view-rooms');
+  renderRooms();
+}
+
+function openRoom(roomId){
+  activeRoom = rooms.find(r=>r.id===roomId);
+  if(!activeRoom) return;
+  showView('view-dashboard');
+  renderDashboard();
+}
+
+// ─── Rooms ────────────────────────────────────────────────────────────────────
+function getRoomStats(room){
+  let present=0,late=0,absent=0;
+  room.students.forEach(s=>{
+    const st=getStatus(room.id,s.id);
+    if(st==='present') present++;
+    else if(st==='late') late++;
+    else if(st==='absent') absent++;
+  });
+  return {present,late,absent,total:room.students.length,unmarked:room.students.length-present-late-absent};
+}
+
+function renderRooms(){
+  const grid = document.getElementById('rooms-grid');
+  grid.innerHTML = '';
+  let totalStudents = 0;
+  rooms.forEach(room=>{ totalStudents += room.students.length; });
+  document.getElementById('banner-rooms').textContent = rooms.length;
+  document.getElementById('banner-students').textContent = totalStudents;
+
+  rooms.forEach(room=>{
+    const stats = getRoomStats(room);
+    let badges = '';
+    if(stats.present>0) badges+=`<span class="status-badge present">${stats.present} present</span>`;
+    if(stats.late>0) badges+=`<span class="status-badge late">${stats.late} late</span>`;
+    if(stats.absent>0) badges+=`<span class="status-badge absent">${stats.absent} absent</span>`;
+    if(stats.unmarked>0) badges+=`<span class="status-badge none">${stats.unmarked} unmarked</span>`;
+    const card = document.createElement('div');
+    card.className='room-card';
+    card.style.cssText=`--c:${room.color}`;
+    card.onclick=()=>openRoom(room.id);
+    card.innerHTML=`
+      <div class="room-card-icon" style="background:${room.color}18">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${room.color}" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      </div>
+      <h3>${room.name}</h3>
+      <p>${room.grade}</p>
+      <div class="student-count">${room.students.length} Students</div>
+      ${stats.total>0?`<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">${badges}</div>`:''}
+    `;
+    grid.appendChild(card);
+  });
+
+  const add = document.createElement('div');
+  add.className='add-room-card';
+  add.onclick=()=>openModal('modal-room');
+  add.innerHTML=`<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add New Room</span>`;
+  grid.appendChild(add);
+}
+
+function addRoom(){
+  const name = document.getElementById('room-name').value.trim();
+  if(!name) return;
+  const grade = document.getElementById('room-grade').value.trim()||'General';
+  const newRoom = {id:'r'+Date.now(), name, grade, color:selectedColor, students:[]};
+  rooms.push(newRoom);
+  save(SK.rooms, rooms);
+  document.getElementById('room-name').value='';
+  document.getElementById('room-grade').value='';
+  closeModal('modal-room');
+  renderRooms();
+  showToast('Classroom created!');
+}
+
+function deleteActiveRoom(){
+  if(!activeRoom) return;
+  if(!confirm(`Delete "${activeRoom.name}"? This cannot be undone.`)) return;
+  rooms = rooms.filter(r=>r.id!==activeRoom.id);
+  save(SK.rooms, rooms);
+  activeRoom = null;
+  goRooms();
+  showToast('Room deleted');
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+function renderDashboard(){
+  if(!activeRoom) return;
+  document.getElementById('db-title').textContent = activeRoom.name;
+  document.getElementById('db-subtitle').textContent = `${activeRoom.grade} · ${activeRoom.students.length} students`;
+  const stats = getRoomStats(activeRoom);
+  const pct = activeRoom.students.length>0 ? Math.round(stats.present/activeRoom.students.length*100) : 0;
+
+  const chips = [
+    {val:activeRoom.students.length, lbl:'Total', color:'var(--text)'},
+    {val:stats.present, lbl:'Present', color:'var(--green)'},
+    {val:stats.late, lbl:'Late', color:'var(--amber)'},
+    {val:stats.absent, lbl:'Absent', color:'var(--red)'},
+    {val:pct+'%', lbl:'Rate', color:'var(--accent)'},
+  ];
+  document.getElementById('stats-row').innerHTML = chips.map(c=>`
+    <div class="stat-chip"><div class="val" style="color:${c.color}">${c.val}</div><div class="lbl">${c.lbl}</div></div>
+  `).join('');
+
+  document.getElementById('progress-pct').textContent = pct+'%';
+  document.getElementById('progress-fill').style.width = pct+'%';
+  renderStudents();
+}
+
+function renderStudents(){
+  if(!activeRoom) return;
+  const list = document.getElementById('student-list');
+  if(activeRoom.students.length===0){
+    list.innerHTML=`<div class="empty-state">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.25;margin-bottom:12px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <p style="font-weight:600">No students yet</p><p style="font-size:13px;margin-top:4px">Click "Add Student" to get started</p>
+    </div>`;
+    return;
+  }
+  list.innerHTML = activeRoom.students.map((student,idx)=>{
+    const status = getStatus(activeRoom.id, student.id);
+    const bg = COLORS[idx%COLORS.length];
+    return `
+      <div class="student-row">
+        <div class="s-avatar" style="background:${bg}">${student.avatar}</div>
+        <div style="flex:1">
+          <div class="s-name">${student.name}</div>
+          <div class="s-id">ID: ${student.id}</div>
+        </div>
+        <span class="status-badge ${status||'none'}">${status||'—'}</span>
+        <div class="att-btns">
+          <button class="att-btn present${status==='present'?' active':''}" title="Present" onclick="setStatus('${activeRoom.id}','${student.id}','present')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <button class="att-btn late${status==='late'?' active':''}" title="Late" onclick="setStatus('${activeRoom.id}','${student.id}','late')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </button>
+          <button class="att-btn absent${status==='absent'?' active':''}" title="Absent" onclick="setStatus('${activeRoom.id}','${student.id}','absent')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <button class="delete-btn" title="Remove student" onclick="deleteStudent('${student.id}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── Students ─────────────────────────────────────────────────────────────────
+function openAddStudent(){ openModal('modal-student'); document.getElementById('student-name').value=''; }
+
+function addStudent(){
+  const name = document.getElementById('student-name').value.trim();
+  if(!name||!activeRoom) return;
+  const avatar = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const student = {id:'s'+Date.now(), name, avatar};
+  activeRoom.students.push(student);
+  rooms = rooms.map(r=>r.id===activeRoom.id?activeRoom:r);
+  save(SK.rooms, rooms);
+  closeModal('modal-student');
+  renderDashboard();
+  showToast('Student added!');
+}
+
+function deleteStudent(studentId){
+  if(!activeRoom) return;
+  activeRoom.students = activeRoom.students.filter(s=>s.id!==studentId);
+  rooms = rooms.map(r=>r.id===activeRoom.id?activeRoom:r);
+  save(SK.rooms, rooms);
+  renderDashboard();
+}
+
+// ─── Attendance ───────────────────────────────────────────────────────────────
+function getStatus(roomId, studentId){
+  return attendance?.[todayStr()]?.[roomId]?.[studentId]||null;
+}
+function setStatus(roomId, studentId, status){
+  const today = todayStr();
+  if(!attendance[today]) attendance[today]={};
+  if(!attendance[today][roomId]) attendance[today][roomId]={};
+  if(attendance[today][roomId][studentId]===status){
+    delete attendance[today][roomId][studentId];
+  } else {
+    attendance[today][roomId][studentId]=status;
+  }
+  save(SK.attendance, attendance);
+  renderDashboard();
+}
+
+// ─── Save Student List ─────────────────────────────────────────────────────────
+function saveStudentList(){
+  if(!activeRoom) return;
+  const today = todayStr();
+  const lines = [
+    `EduAttend – Student List Export`,
+    `Room: ${activeRoom.name} | Grade: ${activeRoom.grade}`,
+    `Date: ${todayLabel()}`,
+    ``,
+    `${'No.'.padEnd(5)} ${'Student Name'.padEnd(25)} ${'ID'.padEnd(12)} Status`,
+    `${'-'.repeat(60)}`,
+  ];
+  activeRoom.students.forEach((s,i)=>{
+    const status = getStatus(activeRoom.id, s.id)||'—';
+    lines.push(`${String(i+1).padEnd(5)} ${s.name.padEnd(25)} ${s.id.padEnd(12)} ${status}`);
+  });
+  lines.push('');
+  lines.push(`Total: ${activeRoom.students.length} | Present: ${activeRoom.students.filter(s=>getStatus(activeRoom.id,s.id)==='present').length} | Late: ${activeRoom.students.filter(s=>getStatus(activeRoom.id,s.id)==='late').length} | Absent: ${activeRoom.students.filter(s=>getStatus(activeRoom.id,s.id)==='absent').length}`);
+
+  const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${activeRoom.name.replace(/\s+/g,'_')}_${today}.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Student list saved!');
+}
+
+// ─── Modal & Color ─────────────────────────────────────────────────────────────
+function openModal(id){ document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+
+function buildColorGrid(){
+  const grid = document.getElementById('color-grid');
+  grid.innerHTML = COLORS.map(c=>`
+    <div class="color-swatch${c===selectedColor?' selected':''}" style="background:${c}" onclick="selectColor('${c}')"></div>
+  `).join('');
+}
+function selectColor(c){
+  selectedColor=c;
+  buildColorGrid();
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.getElementById('auth-screen').style.display='flex';
+</script>
+</body>
+</html>
